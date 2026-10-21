@@ -13,7 +13,7 @@ type Postgres struct {
 	DB *gorm.DB
 }
 
-func (cfg Config) connectPostgres() (*Postgres, error) {
+func (cfg Config) ConnectPostgres() (*Postgres, error) {
 	dbConn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", cfg.Psql.User, cfg.Psql.Password, cfg.Psql.Host, cfg.Psql.Port, cfg.Psql.DBName)
 
 	db, err := gorm.Open(postgres.Open(dbConn), &gorm.Config{})
