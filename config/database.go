@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"portalnews/database/seeds"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -28,6 +29,8 @@ func (cfg Config) ConnectPostgres() (*Postgres, error) {
 		log.Error().Err(err).Msg("[ConnectionPostgres-2] failed to get database connection" + cfg.Psql.Host)
 		return nil, err
 	}
+
+	seeds.SeedUsers(db)
 
 	sqlDB.SetMaxOpenConns(cfg.Psql.DBMaxOpen)
 	sqlDB.SetMaxIdleConns(cfg.Psql.DBMaxIdle)
