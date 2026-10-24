@@ -2,6 +2,7 @@ package app
 
 import (
 	"portalnews/config"
+	"portalnews/lib/auth"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/rs/zerolog/log"
@@ -20,4 +21,7 @@ func RunServer() {
 
 	cdfR2 := cfg.LoadAwsConfig()
 	_ = s3.NewFromConfig(cdfR2)
+
+	// jwt
+	_ = auth.NewJwt(cfg)
 }
