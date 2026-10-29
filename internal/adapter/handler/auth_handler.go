@@ -5,6 +5,7 @@ import (
 	"portalnews/internal/adapter/handler/response"
 	"portalnews/internal/core/domain/entity"
 	"portalnews/internal/core/service"
+	validatorLib "portalnews/lib/validator"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
@@ -38,7 +39,7 @@ func (a *authHandler) Login(c fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(errResp)
 	}
 
-	if err := validate.Struct(req); err != nil {
+	if err := validatorLib.ValidateStruct(req); err != nil {
 		code = "[HANDLER Login -2]"
 		log.Errorw(code, err)
 		errResp.Meta.Status = false
