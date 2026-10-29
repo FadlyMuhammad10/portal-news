@@ -5,6 +5,9 @@ import (
 	"log"
 	"os/signal"
 	"portalnews/config"
+	"portalnews/internal/adapter/handler"
+	"portalnews/internal/adapter/repository"
+	"portalnews/internal/core/service"
 	"portalnews/lib/auth"
 	"portalnews/lib/middleware"
 	"portalnews/lib/pagination"
@@ -23,7 +26,7 @@ import (
 func RunServer() {
 	cfg := config.NewConfig()
 
-	_, err := cfg.ConnectPostgres()
+	db, err := cfg.ConnectPostgres()
 	if err != nil {
 		log.Fatalf("error to connect database %v", err)
 		return
@@ -34,12 +37,21 @@ func RunServer() {
 	_ = s3.NewFromConfig(cdfR2)
 
 	// jwt
-	_ = auth.NewJwt(cfg)
+	jwt := auth.NewJwt(cfg)
 
 	// middleware
 	_ = middleware.NewMiddleware(cfg)
 
 	_ = pagination.NewPagination()
+
+	// repository
+	authRepository := repository.NewAuthRepository(db.DB)
+
+	// service
+	authService := service.NewAuthservice(authRepository, cfg, jwt)
+
+	// handler
+	authHandler := handler.NewAuthHandler(authService)
 
 	app := fiber.New()       // instance fiber
 	app.Use(cors.New())      // middleware cors
@@ -48,7 +60,8 @@ func RunServer() {
 		Format: "[${time}] ${ip}:${port} ${status} - ${method} ${path}\n",
 	})) // mencatat informasi request yang masuk ex. [2026-10-26 09:30:00] 127.0.0.1:54321 200 - GET /api...
 
-	_ = app.Group("/api") // mengelompokkan endpoint dengan prefix tertentu
+	api := app.Group("/api") // mengelompokkan endpoint dengan prefix tertentu
+	api.Post("/login", authHandler.Login)
 
 	// go routine
 	go func() {
