@@ -22,7 +22,7 @@ func ValidateStruct(s interface{}) error {
 			case "email":
 				errMsg = append(errMsg, "Invalid email format")
 			case "required":
-				errMsg = append(errMsg, "Field"+err.Field()+" must be required")
+				errMsg = append(errMsg, "Field "+err.Field()+" must be required")
 			case "min":
 				if err.Field() == "Password" {
 					errMsg = append(errMsg, "Password minimum 8 character")

@@ -27,6 +27,11 @@ type authService struct {
 	jwtToken auth.Jwt
 }
 
+// GetCategories implements [CategoryService].
+func (a *authService) GetCategories(ctx context.Context) ([]entity.CategoryEntity, error) {
+	panic("unimplemented")
+}
+
 // GetUserByEmail implements [AuthService].
 func (a *authService) GetUserByEmail(ctx context.Context, req entity.LoginRequest) (*entity.AccessToken, error) {
 	result, err := a.authRepo.GetUserByEmail(ctx, req)
@@ -66,7 +71,7 @@ func (a *authService) GetUserByEmail(ctx context.Context, req entity.LoginReques
 	return &resp, nil
 }
 
-func NewAuthservice(authRepo repository.AuthRepository, cfg *config.Config, jwtToken auth.Jwt) AuthService {
+func NewAuthService(authRepo repository.AuthRepository, cfg *config.Config, jwtToken auth.Jwt) AuthService {
 	return &authService{authRepo: authRepo,
 		cfg:      cfg,
 		jwtToken: jwtToken}

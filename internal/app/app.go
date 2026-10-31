@@ -40,18 +40,21 @@ func RunServer() {
 	jwt := auth.NewJwt(cfg)
 
 	// middleware
-	_ = middleware.NewMiddleware(cfg)
+	middlewareAuth := middleware.NewMiddleware(cfg)
 
 	_ = pagination.NewPagination()
 
 	// repository
 	authRepository := repository.NewAuthRepository(db.DB)
+	categoryRepository := repository.NewCategoryRepository(db.DB)
 
 	// service
-	authService := service.NewAuthservice(authRepository, cfg, jwt)
+	authService := service.NewAuthService(authRepository, cfg, jwt)
+	categoryService := service.NewCategoryervice(categoryRepository)
 
 	// handler
 	authHandler := handler.NewAuthHandler(authService)
+	categoryHandler := handler.NewCateoryHandler(categoryService)
 
 	app := fiber.New()       // instance fiber
 	app.Use(cors.New())      // middleware cors
@@ -62,6 +65,15 @@ func RunServer() {
 
 	api := app.Group("/api") // mengelompokkan endpoint dengan prefix tertentu
 	api.Post("/login", authHandler.Login)
+
+	adminApi := app.Group("/admin")
+	adminApi.Use(middlewareAuth.CheckToken())
+
+	// category
+	categoryApi := adminApi.Group("/categories")
+	categoryApi.Get("/", categoryHandler.GetCategories)
+	categoryApi.Post("/", categoryHandler.CreateCategory)
+	categoryApi.Get("/:id", categoryHandler.GetCategoryById)
 
 	// go routine
 	go func() {
